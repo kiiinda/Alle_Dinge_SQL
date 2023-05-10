@@ -76,6 +76,8 @@ order by Total_Deaths DESC
 
 Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
 , SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
+--, ((SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date))/population)*100
+--as Percentage_Vaccinated
 --, (Total_Vaccinated/population)*100
 FROM portfolioProjects..CovidDeaths deaths
 JOIN portfolioProjects..CovidVaccinations vaccs
@@ -98,11 +100,12 @@ FROM portfolioProjects..CovidDeaths deaths JOIN
 portfolioProjects..CovidVaccinations vaccs
 	ON deaths.location = vaccs.location 
 	AND deaths.date = vaccs.date
-where deaths.continent IS NOT NULL and deaths.location = 'Kenya'
+where deaths.continent IS NOT NULL
+--and deaths.location = 'Kenya'
 --order by 2, 3
 )
 
-SELECT *, (Total_Vaccinated/Population) * 100 as Avg_Vaccinated FROM PopvsVaccs
+SELECT *, (Total_Vaccinated/Population) * 100 as Percentage_Vaccinated FROM PopvsVaccs
 
 
 
@@ -124,7 +127,8 @@ FROM portfolioProjects..CovidDeaths deaths JOIN
 portfolioProjects..CovidVaccinations vaccs
 	ON deaths.location = vaccs.location 
 	AND deaths.date = vaccs.date
-where deaths.continent IS NOT NULL and deaths.location = 'Kenya'
+where deaths.continent IS NOT NULL 
+--and deaths.location = 'Kenya'
 --order by 2, 3
 
-SELECT *, (Total_Vaccinated/Population) * 100 as Avg_Vaccinated FROM #Percentage_Vaccinated
+SELECT *, (Total_Vaccinated/Population) * 100 as Percentage_Vaccinated FROM #Percentage_Vaccinated
