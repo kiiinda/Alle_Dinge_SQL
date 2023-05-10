@@ -76,7 +76,7 @@ order by Total_Deaths DESC
 
 Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
 , SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
---, (RollingPeopleVaccinated/population)*100
+--, (Total_Vaccinated/population)*100
 FROM portfolioProjects..CovidDeaths deaths
 JOIN portfolioProjects..CovidVaccinations vaccs
 	On deaths.location = vaccs.location
