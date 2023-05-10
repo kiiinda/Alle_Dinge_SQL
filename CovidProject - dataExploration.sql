@@ -132,3 +132,36 @@ where deaths.continent IS NOT NULL
 --order by 2, 3
 
 SELECT *, (Total_Vaccinated/Population) * 100 as Percentage_Vaccinated FROM #Percentage_Vaccinated
+
+
+
+
+--Create Views: to store data for later visualizations
+Create View PercentPopulation_Vaccinated as
+Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
+, SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
+---, (Total_Vaccinated/population)*100
+FROM portfolioProjects..CovidDeaths deaths
+JOIN portfolioProjects..CovidVaccinations vaccs
+	On deaths.location = vaccs.location
+	and deaths.date = vaccs.date
+where deaths.continent is not null 
+--order by 2,3
+
+SELECT * FROM PercentPopulation_Vaccinated
+
+CREATE View ContinentDeathCount as
+SELECT continent, MAX(cast(total_deaths as int)) as Total_Deaths
+FROM  portfolioProjects..CovidDeaths
+WHERE continent is not null
+GROUP BY continent
+--order by Total_Deaths DESC
+
+
+CREATE VIEW GlobalNumbers as 
+--Global Numbers
+SELECT SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, 
+SUM(cast(new_deaths as int)) / SUM(new_cases)*100 AS Deaths_In_Percentage
+FROM  portfolioProjects..CovidDeaths
+WHERE continent IS NOT NULL
+--ORDER BY 1,2
