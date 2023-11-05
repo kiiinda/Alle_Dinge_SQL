@@ -161,3 +161,65 @@ join people p on p.SPID = s.SPID
 join products pr on pr.PID = s.PID
 group by pr.Category, p.Team
 order by pr.Category, p.Team
+
+	
+----------------------------------------------------------------------
+--shipment details for sales >2k and <100 boxes
+select pr.Product, Amount, Boxes, pr.category, pr.size, g.geo, SaleDate
+from sales s 
+	join products pr on s.PID = pr.PID
+	join geog	g on g.GeoID = s.GeoID
+WHERE s.Amount > 2000 and s.Boxes < 100
+
+select * from sales s 
+WHERE s.Amount > 2000 and s.Boxes < 100
+
+
+--how many Sales per person in Jan 2021
+select  p.Salesperson, count(*) as sale_count
+	from sales s
+		join people p on p.SPID = s.SPID
+	Where s.SaleDate between '2021-01-01' and '2021-01-31'
+	group by p.salesperson
+	order by count(*) desc
+
+
+
+--Product that sells more
+select pr.product, COUNT(Boxes) as Count_of_Product, sum(Amount) as total_amount
+from sales s
+	join products pr on pr.PID = s.PID
+group by pr.Product
+order by  COUNT(Boxes) desc
+
+
+
+--prod that sell more between Milk bars and eclairs
+select pr.product, sum(Boxes) as total_boxes, sum(Amount) as total_amount
+from sales s
+	join products pr on pr.PID = s.PID
+where pr.product = 'Milk Bars' or pr.Product = 'Eclairs'
+group by pr.Product
+
+
+
+--category that sells more 
+select pr.category, sum(Boxes) as Count_of_Product
+from sales s
+	join products pr on pr.PID = s.PID
+group by pr.category
+order by  sum(Boxes) desc
+
+
+--product sold more in first 7 days of feb 2021  between Milk bars and eclairs
+select pr.product, sum(Boxes) as product_count, sum(Amount) as total_amount
+from sales s
+	join products pr on pr.PID = s.PID
+where s.SaleDate between '2021-02-01' and '2021-02-07' and product in ('Milk Bars', 'Eclairs')
+group by pr.Product
+
+
+
+--shipments <100 customers and <100 boxes. Wednesday occurence?
+select * from sales s 
+WHERE s.Customers < 100 and s.boxes <100 and DATENAME(Weekday, SaleDate) = 'Wednesday'
