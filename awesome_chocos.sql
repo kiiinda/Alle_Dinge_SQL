@@ -1,5 +1,3 @@
-use awesome_chocos
-
 CREATE TABLE geog(
 	GeoID varchar(4) NOT NULL PRIMARY KEY,
 	Geo varchar(20), 
@@ -91,7 +89,6 @@ order by Amount desc
 select SaleDate, Amount, Boxes, DATENAME(WEEKDAY, SaleDate) as 'Day_of_Week' from sales
 --check out correct format to describe this
 
-select CAST(Team as varchar) as team from people
 
 select * from people
 where  team in ('Delish', 'Jucies')
@@ -185,16 +182,7 @@ select  p.Salesperson, count(*) as sale_count
 
 
 
---Product that sells more
-select pr.product, COUNT(Boxes) as Count_of_Product, sum(Amount) as total_amount
-from sales s
-	join products pr on pr.PID = s.PID
-group by pr.Product
-order by  COUNT(Boxes) desc
-
-
-
---prod that sell more between Milk bars and eclairs
+--product that sells more between Milk bars and eclairs
 select pr.product, sum(Boxes) as total_boxes, sum(Amount) as total_amount
 from sales s
 	join products pr on pr.PID = s.PID
