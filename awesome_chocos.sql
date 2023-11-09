@@ -160,7 +160,7 @@ group by pr.Category, p.Team
 order by pr.Category, p.Team
 
 	
-----------------------------------------------------------------------
+----------------------------------------------------------------------------------------
 --shipment details for sales >2k and <100 boxes
 select pr.Product, Amount, Boxes, pr.category, pr.size, g.geo, SaleDate
 from sales s 
@@ -211,3 +211,47 @@ group by pr.Product
 --shipments <100 customers and <100 boxes. Wednesday occurence?
 select * from sales s 
 WHERE s.Customers < 100 and s.boxes <100 and DATENAME(Weekday, SaleDate) = 'Wednesday'
+
+------------------------------------------------------------------------------------------
+--salesperson with at least one shipment on first 7 days of Jan
+select distinct Salesperson
+from sales s
+	join people pe on pe.SPID = s.SPID
+where SaleDate between '2021-01-01' and '2021-01-07'
+
+
+--Who didn't make first 7 days of Jan 2021
+select Salesperson
+from people pe
+where pe.spid not in 
+	(select distinct SPID from sales where SaleDate between '2021-01-01' and '2021-01-07')
+
+
+
+--No of times boxes > 1000 were shipped each month
+select COUNT(*) as 'shipment > 1k boxes' , DATENAME(MONTH, SaleDate) as month_sales
+from sales
+where Boxes > 1000
+GROUP BY DATENAME(MONTH, SaleDate)
+
+
+
+--At least one box of ' After Nines' shipped to NZ  on all months
+select product, Boxes, DATENAME(month, SaleDate) as month_sold
+from sales s
+	JOIN products pr on pr.pid = s.PID
+	join geog on geog.GeoID = geog.GeoID
+where  Product = 'After Nines' and Geo = 'New Zealand'
+
+
+
+--Who buys more chocos every month? INDIA OR AUSTRALIA
+select   datename(month,saledate) as month, count(Boxes) as box_count, Geo
+from sales
+	join geog on geog.GeoID = sales.GeoID
+	join products pr on pr.PID = sales.PID
+WHERE Geo in ('India', 'Australia') and Category = 'bars'
+group by Geo, datename(month,saledate)
+order by datename(month,saledate), Geo
+
+
