@@ -1,6 +1,6 @@
 /* Covid 19 Data Exploration
 
-used: Aggregate Functions, Converting Data Types, Joins, Windows Functions, CTE's, Temp Tables
+used: Aggregate Functions, Converting Data Types, Joins, view, CTE's
 
 */
 
@@ -55,7 +55,6 @@ order by Total_DeathCount DESC
 
 
 --Global Numbers
-
 SELECT SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, 
 SUM(cast(new_deaths as int)) / SUM(new_cases)*100 AS Deaths_In_Percentage
 FROM  portfolioProjects..CovidDeaths
@@ -73,7 +72,6 @@ order by Total_Deaths DESC
 
 
 -- Total Population vs Vaccinations (Percentage of Population that has received at least one Covid Vaccine)
-
 Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
 , SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
 --, ((SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date))/population)*100
@@ -88,55 +86,7 @@ order by 2,3
 
 
 
--- Using CTE to perform Calculation on Partition By in previous query
-WITH PopvsVaccs(Continent, Location, Date, Population, new_vaccinations, Total_Vaccinated)
-as 
-(
-
---Total Population vs Vaccinations
-SELECT deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations,
-SUM(CAST(vaccs.new_vaccinations as bigint)) OVER (PARTITION BY deaths.location order by deaths.location, deaths.date) AS Total_Vaccinated --Sum new_vacss in each location and order by...
-FROM portfolioProjects..CovidDeaths deaths JOIN
-portfolioProjects..CovidVaccinations vaccs
-	ON deaths.location = vaccs.location 
-	AND deaths.date = vaccs.date
-where deaths.continent IS NOT NULL
---and deaths.location = 'Kenya'
---order by 2, 3
-)
-
-SELECT *, (Total_Vaccinated/Population) * 100 as Percentage_Vaccinated FROM PopvsVaccs
-
-
-
-
---TEMP TABLE
-DROP TABLE IF EXISTS #Percentage_Vaccinated
-
-CREATE TABLE #Percentage_Vaccinated
-(
-Continent nvarchar(255), Location nvarchar(255), Date datetime
-, Population numeric, new_vaccinations numeric, Total_Vaccinated numeric
-)
-
-INSERT INTO #Percentage_Vaccinated
---Total Population vs Vaccinations
-SELECT deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations,
-SUM(CAST(vaccs.new_vaccinations as bigint)) OVER (PARTITION BY deaths.location order by deaths.location, deaths.date) AS Total_Vaccinated --Sum new_vacss in each location and order by...
-FROM portfolioProjects..CovidDeaths deaths JOIN
-portfolioProjects..CovidVaccinations vaccs
-	ON deaths.location = vaccs.location 
-	AND deaths.date = vaccs.date
-where deaths.continent IS NOT NULL 
---and deaths.location = 'Kenya'
---order by 2, 3
-
-SELECT *, (Total_Vaccinated/Population) * 100 as Percentage_Vaccinated FROM #Percentage_Vaccinated
-
-
-
-
---Create Views: to store data for later visualizations
+--Create Views: to store data 
 Create View PercentPopulation_Vaccinated as
 Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
 , SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
@@ -164,4 +114,4 @@ SELECT SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deat
 SUM(cast(new_deaths as int)) / SUM(new_cases)*100 AS Deaths_In_Percentage
 FROM  portfolioProjects..CovidDeaths
 WHERE continent IS NOT NULL
---ORDER BY 1,2
+
