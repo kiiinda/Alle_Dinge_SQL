@@ -1,6 +1,6 @@
 /* Covid 19 Data Exploration
 
-skills used: Aggregate Functions, Converting Data Types, Joins, Windows Functions, CTE's, Temp Tables
+used: Aggregate Functions, Converting Data Types, Joins, Windows Functions, CTE's, Temp Tables
 
 */
 
@@ -72,7 +72,7 @@ GROUP BY continent
 order by Total_Deaths DESC
 
 
--- Total Population vs Vaccinations (Percentage of Population that has recieved at least one Covid Vaccine)
+-- Total Population vs Vaccinations (Percentage of Population that has received at least one Covid Vaccine)
 
 Select deaths.continent, deaths.location, deaths.date, deaths.population, vaccs.new_vaccinations
 , SUM(CONVERT(bigint,vaccs.new_vaccinations)) OVER (Partition by deaths.Location Order by deaths.location, deaths.Date) as Total_Vaccinated
